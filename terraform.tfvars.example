@@ -1,0 +1,8 @@
+org_id            = "361767570892"
+folder_id         = "674205511170"
+billing_account   = "0175AB-089A77-E9DDB7"
+bootstrap_project = "hanuman-0002"
+workload_project  = "hanuman-0001"
+domain            = "sanjayglobalconnect.com"
+github_repo       = "jcvyt/bq-ai-analyst"
+region            = "us-east4"
