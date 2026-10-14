@@ -1,0 +1,31 @@
+name: wif-smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.TF_CI_SA }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.PROJECT_ID }}
+
+      - name: List Terraform state bucket
+        run: |
+          gcloud storage ls gs://${{ vars.TF_STATE_BUCKET }}
+
+      - name: List BigQuery datasets
+        run: |
+          bq ls --project_id=${{ vars.PROJECT_ID }}
