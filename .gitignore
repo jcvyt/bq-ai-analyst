@@ -14,3 +14,4 @@ crash.log
 
 # OS
 .DS_Store
+!.terraform.lock.hcl
