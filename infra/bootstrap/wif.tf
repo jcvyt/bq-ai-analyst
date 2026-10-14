@@ -1,7 +1,3 @@
-# ---------------------------------------------------------------------------
-# Workload Identity Federation for GitHub Actions
-# ---------------------------------------------------------------------------
-
 resource "google_iam_workload_identity_pool" "github" {
   project                   = var.bootstrap_project
   workload_identity_pool_id = "github"
@@ -13,24 +9,17 @@ resource "google_iam_workload_identity_pool_provider" "github" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
   workload_identity_pool_provider_id = "github-oidc"
   display_name                       = "GitHub OIDC"
-
   attribute_mapping = {
     "google.subject"       = "assertion.sub"
     "attribute.repository" = "assertion.repository"
     "attribute.ref"        = "assertion.ref"
   }
-
   # Mandatory: only YOUR repo can exchange tokens
   attribute_condition = "assertion.repository == \"${var.github_repo}\""
-
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 }
-
-# ---------------------------------------------------------------------------
-# CI service account
-# ---------------------------------------------------------------------------
 
 resource "google_service_account" "tf_ci" {
   project      = var.bootstrap_project
@@ -38,7 +27,6 @@ resource "google_service_account" "tf_ci" {
   display_name = "Terraform CI for envs/dev"
 }
 
-# Allow GitHub Actions (scoped to your repo) to impersonate the CI SA
 resource "google_service_account_iam_member" "wif_binding" {
   service_account_id = google_service_account.tf_ci.name
   role               = "roles/iam.workloadIdentityUser"
@@ -52,10 +40,6 @@ resource "google_service_account_iam_member" "admins_impersonate" {
   member             = local.admins
 }
 
-# ---------------------------------------------------------------------------
-# State bucket + workload project permissions
-# ---------------------------------------------------------------------------
-
 resource "google_storage_bucket_iam_member" "ci_state" {
   bucket = google_storage_bucket.tfstate.name
   role   = "roles/storage.objectAdmin"
@@ -68,8 +52,7 @@ resource "google_project_iam_member" "ci_workload" {
     "roles/storage.admin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
-    # escalation risk: constrain with IAM Conditions in Phase 2
-    "roles/resourcemanager.projectIamAdmin",
+    "roles/resourcemanager.projectIamAdmin", # escalation risk: constrain with IAM Conditions in Phase 2
     "roles/logging.configWriter",
     "roles/serviceusage.serviceUsageAdmin",
   ])
@@ -78,14 +61,9 @@ resource "google_project_iam_member" "ci_workload" {
   member  = google_service_account.tf_ci.member
 }
 
-# ---------------------------------------------------------------------------
-# Outputs
-# ---------------------------------------------------------------------------
-
 output "wif_provider" {
   value = google_iam_workload_identity_pool_provider.github.name
 }
-
 output "tf_ci_sa" {
   value = google_service_account.tf_ci.email
 }
