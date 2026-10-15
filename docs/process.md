@@ -17,6 +17,8 @@
 - CI SA: sa-tf-ci@hanuman-0002 with 7 project roles on hanuman-0001 + objectAdmin on state bucket;
   gcp-admins can impersonate it
 - Cost guardrails: budget alerts set; BigQuery custom quota blocked on free trial -> ~/.bigqueryrc 10 GB cap
+- Guardrails verified: SA key creation, non-US location, and allUsers binding all denied; impersonation works
+- CI: google-github-actions v3 (Node 24), runner pinned to ubuntu-24.04, Dependabot for actions + Terraform
 
 ## Remaining Week 1
 - Day 4: infra/envs/dev for hanuman-0001 (datasets raw_thelook/curated/semantic/ops_audit/ops_eval,
@@ -35,5 +37,3 @@
 - Cloud Shell IPv6 errors: retry with -parallelism=4 or restart Cloud Shell
 - Import existing resources with import blocks + -generate-config-out; plan must show 0 changes before apply
 
-- Guardrails verified: SA key creation, non-US location, and allUsers binding all denied; impersonation works
-- CI: google-github-actions v3 (Node 24), runner pinned to ubuntu-24.04, Dependabot for actions + Terraform
