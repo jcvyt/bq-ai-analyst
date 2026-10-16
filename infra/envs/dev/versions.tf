@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 7.0" # <-- match bootstrap
     }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 7.0" # <-- same constraint as google
+    }
   }
   backend "gcs" {
     bucket = "hanuman-0002-tfstate"

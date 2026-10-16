@@ -26,7 +26,7 @@ resource "google_billing_account_iam_member" "billing" {
 }
 
 resource "google_folder_iam_member" "developers" {
-  for_each = toset(["roles/viewer", "roles/bigquery.jobUser", "roles/bigquery.dataViewer"])
+  for_each = toset(["roles/viewer", "roles/bigquery.jobUser"])
   folder   = local.folder
   role     = each.value
   member   = local.developers

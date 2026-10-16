@@ -16,3 +16,5 @@ crash.log
 .DS_Store
 !.terraform.lock.hcl
 *.tfplan
+.venv/
+.venv/

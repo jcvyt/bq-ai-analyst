@@ -10,3 +10,8 @@ provider "google" {
     managed-by = "terraform"
   }
 }
+
+provider "google-beta" {
+  project = var.project_id
+  region  = var.region
+}
