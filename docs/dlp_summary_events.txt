@@ -1,0 +1,17 @@
++----------------+-------------+----------+
+|   info_type    | column_name | findings |
++----------------+-------------+----------+
+| IP_ADDRESS     | ip_address  |    50000 |
+| PERSON_NAME    | uri         |     1852 |
+| PERSON_NAME    | city        |     1823 |
+| LAST_NAME      | uri         |     1244 |
+| LAST_NAME      | city        |     1187 |
+| PERSON_NAME    | state       |      794 |
+| FIRST_NAME     | uri         |      601 |
+| LAST_NAME      | state       |      587 |
+| FIRST_NAME     | city        |      477 |
+| FIRST_NAME     | state       |      135 |
+| STREET_ADDRESS | state       |        4 |
+| STREET_ADDRESS | postal_code |        4 |
+| STREET_ADDRESS | city        |        2 |
++----------------+-------------+----------+

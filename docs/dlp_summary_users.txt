@@ -1,0 +1,28 @@
++----------------+----------------+----------+
+|   info_type    |  column_name   | findings |
++----------------+----------------+----------+
+| EMAIL_ADDRESS  | email          |   100000 |
+| PERSON_NAME    | first_name     |    99999 |
+| PERSON_NAME    | last_name      |    99998 |
+| FIRST_NAME     | first_name     |    99336 |
+| LAST_NAME      | last_name      |    99160 |
+| PERSON_NAME    | street_address |    88115 |
+| STREET_ADDRESS | street_address |    81818 |
+| LAST_NAME      | street_address |    51716 |
+| FIRST_NAME     | street_address |    49765 |
+| PERSON_NAME    | city           |     4133 |
+| LAST_NAME      | city           |     2656 |
+| PERSON_NAME    | state          |     1950 |
+| LAST_NAME      | state          |     1315 |
+| FIRST_NAME     | city           |      959 |
+| LAST_NAME      | first_name     |      503 |
+| FIRST_NAME     | last_name      |      441 |
+| FIRST_NAME     | state          |      309 |
+| STREET_ADDRESS | state          |      233 |
+| STREET_ADDRESS | postal_code    |      233 |
+| STREET_ADDRESS | country        |      233 |
+| STREET_ADDRESS | city           |       79 |
+| PERSON_NAME    | email          |       70 |
+| FIRST_NAME     | email          |       42 |
+| LAST_NAME      | email          |       28 |
++----------------+----------------+----------+
