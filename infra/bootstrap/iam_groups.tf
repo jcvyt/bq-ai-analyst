@@ -31,3 +31,10 @@ resource "google_folder_iam_member" "developers" {
   role     = each.value
   member   = local.developers
 }
+
+# infra/bootstrap/iam_org.tf
+resource "google_organization_iam_member" "admins_asset_viewer" {
+  org_id = var.org_id                       # 361767570892
+  role   = "roles/cloudasset.viewer"
+  member = local.admins
+}
