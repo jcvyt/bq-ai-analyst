@@ -99,3 +99,33 @@ Not approved: gcp-developers (verified **denied** via Policy Troubleshooter), sa
 - DLP scan of the remaining tables + a custom infoType for postal codes
 - Reconsider sa-tf-ci data-read access (it needs metadata, not data)
 - CMEK on raw_thelook; VPC-SC perimeter
+
+
+## events (~2.4M rows) — DLP job i-4215257… sampled 50,000 rows (rowsLimit), quotes excluded
+
+| Column | Class | DLP evidence (of 50k sampled) | Curated rule | Semantic rule |
+|---|---|---|---|---|
+| ip_address | Direct | IP_ADDRESS POSSIBLE (100%) | Dropped | Excluded |
+| user_id | Pseudonymous key | none — join path to users | Keep | Privacy unit only, never displayed |
+| session_id | Pseudonymous | none | Keep | Privacy unit fallback, never displayed |
+| postal_code | Quasi (high risk) | 4 STREET_ADDRESS (noise) | Dropped | Excluded |
+| city | Quasi | PERSON_NAME false positives | Keep | Excluded |
+| state | Quasi | PERSON_NAME false positives | Keep | Allowed via aggregation threshold |
+
+| uri | Behavioral (non-PII) | PERSON_NAME (~7%) = brand names (levi's, calvinklein); 0 query strings, 0 '@' | uri_path (query/fragment stripped) + parsed page_type, department, category, brand, product_id | Parsed dimensions only; raw uri excluded |
+| privacy_unit (derived) | Pseudonymous | 46.6% of rows anonymous (user_id NULL) | COALESCE(CAST(user_id AS STRING), session_id) | Aggregation threshold privacy_unit_column, k=10 |
+
+### Notes
+- Highest risk is the user_id join path to users, not any DLP-flagged column.
+- Privacy unit: COALESCE(CAST(user_id AS STRING), session_id) so anonymous traffic is covered.
+- DLP sample: 50,000 rows; full-table discovery scheduled in Phase 2 (SDP discovery).
+
+## Approved raw_thelook readers (Policy Analyzer, org scope, groups expanded — 2026-10-19)
+| Identity | Role | Grant path | Justification |
+|---|---|---|---|
+| group: gcp-admins (members redacted) | dataOwner | Dataset ACL | Platform administration |
+| projectOwners (special group) | dataOwner | Dataset ACL | Basic role; removal deferred to Phase 2 |
+| DLP service agent | dlp.serviceAgent | Project IAM | DLP inspection jobs |
+| sa-tf-ci (bootstrap project) | bigquery.admin | Project IAM | **Accepted risk**: deployer has data read. Phase 2: custom role without tables.getData/export; re-verify with this analysis |
+
+Verified absent: gcp-developers, sa-analyst-agent.

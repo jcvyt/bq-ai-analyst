@@ -11,6 +11,11 @@ TARGETS = {"users": 0, "events": 50_000}  # 0 = full table
 client = dlp_v2.DlpServiceClient(client_options=ClientOptions(quota_project_id=PROJECT))
 parent = f"projects/{PROJECT}/locations/{LOCATION}"
 
+TERMINAL = {
+    dlp_v2.DlpJob.JobState.DONE,
+    dlp_v2.DlpJob.JobState.FAILED,
+    dlp_v2.DlpJob.JobState.CANCELED,
+}
 
 def start(table: str, rows_limit: int) -> str:
     bq_opts = {"table_reference": {"project_id": PROJECT, "dataset_id": "raw_thelook", "table_id": table}}
@@ -31,16 +36,20 @@ def start(table: str, rows_limit: int) -> str:
     return job.name
 
 
-def wait(name: str) -> None:
-    done = {dlp_v2.DlpJob.JobState.DONE, dlp_v2.DlpJob.JobState.FAILED, dlp_v2.DlpJob.JobState.CANCELED}
-    while (job := client.get_dlp_job(name=name)).state not in done:
-        time.sleep(15)
-    print(f"{name}: {job.state.name}")
-    for s in job.inspect_details.result.info_type_stats:
-        print(f"  {s.info_type.name}: {s.count}")
-    for e in job.errors:
-        print(f"  ERROR: {e.details.message}")
-
+def wait(job_name: str, poll_s: int = 30) -> dlp_v2.DlpJob:
+    client = dlp_v2.DlpServiceClient()
+    while True:
+        job = client.get_dlp_job(name=job_name)
+        r = job.inspect_details.result
+        pct = 100 * r.processed_bytes / r.total_estimated_bytes if r.total_estimated_bytes else 0.0
+        findings = sum(s.count for s in r.info_type_stats)
+        print(f"{time.strftime('%H:%M:%S')} {job.state.name:<9} {pct:5.1f}% findings={findings}",
+              flush=True)
+        if job.state in TERMINAL:
+            if job.state != dlp_v2.DlpJob.JobState.DONE:
+                raise SystemExit(f"Job ended {job.state.name}: {list(job.errors)}")
+            return job
+        time.sleep(poll_s)
 
 if __name__ == "__main__":
     for name in [start(t, n) for t, n in TARGETS.items()]:
