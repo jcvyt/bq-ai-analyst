@@ -7,7 +7,7 @@
 - hanuman-0001 = workload/dev (project number 236142939294); hanuman-0002 = bootstrap
 - Groups: gcp-admins, gcp-billing, gcp-developers (+ dev-test@ user for access tests)
 - Cloud Shell as admin; `source scripts/env.sh`; VS Code opened on ~/bq-ai-analyst only
-- Repo: github.com/jcvyt/bq-ai-analyst (public)
+- Repo: github.com/jcvyt/bq-ai-analyst (public) 
 
 ## Done
 ### Days 1–5 (summary)
