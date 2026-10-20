@@ -46,7 +46,10 @@ def main() -> int:
     for name, sql, expect in CASES:
         try:
             value = next(iter(bq.query(sql).result()))[0]
-            ok = expect == value
+            if callable(expect) and not isinstance(expect, type):
+                ok = bool(expect(value))
+            else:
+                ok = expect == value
             detail = f"got {value}"
         except (BadRequest, Forbidden) as e:
             ok = isinstance(expect, type) and isinstance(e, expect)
