@@ -1,10 +1,11 @@
 locals {
   datasets = {
-    raw_thelook = { desc = "Landing copy of thelook_ecommerce. Contains PII. No agent access.", data_class = "confidential" }
-    curated     = { desc = "Cleaned, conformed tables. Read only via authorized views.", data_class = "confidential" }
-    semantic    = { desc = "Governed views/metrics exposed to the AI analyst agent.", data_class = "internal" }
-    ops_audit   = { desc = "Agent query audit + log sink target.", data_class = "internal" }
-    ops_eval    = { desc = "Golden questions and eval run results.", data_class = "internal" }
+    raw_thelook   = { desc = "Landing copy of thelook_ecommerce. Contains PII. No agent access.", data_class = "confidential" }
+    curated       = { desc = "Cleaned, conformed tables. Read only via authorized views.", data_class = "confidential" }
+    semantic      = { desc = "Governed views/metrics exposed to the AI analyst agent.", data_class = "internal" }
+    ops_audit     = { desc = "Agent query audit + log sink target.", data_class = "internal" }
+    ops_eval      = { desc = "Golden questions and eval run results.", data_class = "internal" }
+    ops_ci_canary = { desc = "CI canary: created and deleted to verify the destroy gate. Safe to delete.", data_class = "internal" }
   }
 
   raw_access = [
