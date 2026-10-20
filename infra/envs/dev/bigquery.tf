@@ -1,15 +1,15 @@
 locals {
   datasets = {
     raw_thelook = { desc = "Landing copy of thelook_ecommerce. Contains PII. No agent access.", data_class = "confidential" }
-    curated     = { desc = "Cleaned, conformed tables. Read only via authorized views.",        data_class = "confidential" }
-    semantic    = { desc = "Governed views/metrics exposed to the AI analyst agent.",          data_class = "internal" }
-    ops_audit   = { desc = "Agent query audit + log sink target.",                             data_class = "internal" }
-    ops_eval    = { desc = "Golden questions and eval run results.",                           data_class = "internal" }
+    curated     = { desc = "Cleaned, conformed tables. Read only via authorized views.", data_class = "confidential" }
+    semantic    = { desc = "Governed views/metrics exposed to the AI analyst agent.", data_class = "internal" }
+    ops_audit   = { desc = "Agent query audit + log sink target.", data_class = "internal" }
+    ops_eval    = { desc = "Golden questions and eval run results.", data_class = "internal" }
   }
 
   raw_access = [
     { role = "OWNER", special_group = "projectOwners", group_by_email = null },
-    { role = "OWNER", special_group = null,            group_by_email = var.admins_group },
+    { role = "OWNER", special_group = null, group_by_email = var.admins_group },
   ]
 }
 

@@ -1,0 +1,57 @@
+name: tf-plan
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    paths:
+      - "infra/envs/dev/**"
+      - "infra/modules/**"
+      - ".github/workflows/tf-*.yml"
+      - "scripts/destroy_gate.sh"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: tf-plan-dev-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    env:
+      TF_VAR_project_id:       ${{ vars.TF_VAR_project_id }}
+      TF_VAR_region:           ${{ vars.TF_VAR_region }}
+      TF_VAR_admins_group:     ${{ secrets.TF_VAR_ADMINS_GROUP }}
+      TF_VAR_developers_group: ${{ secrets.TF_VAR_DEVELOPERS_GROUP }}
+    defaults:
+      run:
+        working-directory: infra/envs/dev
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_TF_SA }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ vars.TF_VERSION }}
+          terraform_wrapper: false
+      - run: terraform fmt -check -recursive ../..
+      - run: terraform init -input=false
+      - run: terraform validate
+      - run: terraform plan -input=false -lock-timeout=5m -parallelism=4 -out=tfplan
+      - run: terraform show -json tfplan > tfplan.json
+      - name: Destroy gate
+        env:
+          ALLOW_DESTROY: ${{ contains(github.event.pull_request.labels.*.name, 'allow-destroy') }}
+        run: ../../../scripts/destroy_gate.sh tfplan.json
+      - name: Plan summary
+        if: always() && hashFiles('infra/envs/dev/tfplan') != ''
+        run: |
+          {
+            echo "### dev plan"
+            echo '```'
+            terraform show -no-color tfplan | tail -n 80
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

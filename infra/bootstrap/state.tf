@@ -9,7 +9,7 @@ resource "google_storage_bucket" "tfstate" {
 
   lifecycle_rule {
     condition { num_newer_versions = 10 }
-    action    { type = "Delete" }
+    action { type = "Delete" }
   }
 
   labels = { app = "bq-ai-analyst", layer = "bootstrap" }

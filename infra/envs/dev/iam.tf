@@ -30,3 +30,9 @@ resource "google_project_iam_member" "dlp_agent" {
   role    = "roles/dlp.serviceAgent"
   member  = "serviceAccount:${google_project_service_identity.dlp.email}"
 }
+
+resource "google_service_account_iam_member" "ci_can_test_as_agent" {
+  service_account_id = google_service_account.analyst_agent.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:sa-tf-ci@hanuman-0002.iam.gserviceaccount.com"
+}
