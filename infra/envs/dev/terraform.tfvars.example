@@ -1,0 +1,4 @@
+project_id       = "CHANGE_ME"
+region           = "CHANGE_ME"
+admins_group     = "CHANGE_ME"
+developers_group = "CHANGE_ME" # same value as in bootstrap

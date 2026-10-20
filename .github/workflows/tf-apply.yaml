@@ -20,6 +20,11 @@ concurrency:
 jobs:
   plan:
     runs-on: ubuntu-24.04
+    env:
+      TF_VAR_project_id:       ${{ vars.TF_VAR_project_id }}
+      TF_VAR_region:           ${{ vars.TF_VAR_region }}
+      TF_VAR_admins_group:     ${{ vars.TF_VAR_admins_group }}
+      TF_VAR_developers_group: ${{ vars.TF_VAR_developers_group }}
     defaults:
       run:
         working-directory: infra/envs/dev
