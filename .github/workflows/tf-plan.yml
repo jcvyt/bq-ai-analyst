@@ -22,8 +22,8 @@ jobs:
     env:
       TF_VAR_project_id:       ${{ vars.TF_VAR_project_id }}
       TF_VAR_region:           ${{ vars.TF_VAR_region }}
-      TF_VAR_admins_group:     ${{ vars.TF_VAR_admins_group }}
-      TF_VAR_developers_group: ${{ vars.TF_VAR_developers_group }}
+      TF_VAR_admins_group:     ${{ secrets.TF_VAR_ADMINS_GROUP }}
+      TF_VAR_developers_group: ${{ secrets.TF_VAR_DEVELOPERS_GROUP }}
     defaults:
       run:
         working-directory: infra/envs/dev
