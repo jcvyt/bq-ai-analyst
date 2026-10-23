@@ -1357,6 +1357,7 @@ variable "developers_group" {
 }
 ```
  
+
 **Check (prove it works):**
 
 ```bash
