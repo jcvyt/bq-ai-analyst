@@ -2,11 +2,11 @@ name: tf-plan
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
-    paths:
-      - "infra/envs/dev/**"
-      - "infra/modules/**"
-      - ".github/workflows/tf-*.yml"
-      - "scripts/destroy_gate.sh"
+
+
+
+
+
 
 permissions:
   contents: read
