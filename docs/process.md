@@ -1,7 +1,7 @@
 # bq-ai-analyst — Phase 1 progress (handoff)
 
 ## Status: Days 1–3 complete (Oct 2026)
-- Own Cloud Identity org (free trial): org 361767570892, folder "Hanuman"
+- Own Cloud Identity org (free trial): org <ORG_ID>, folder "Hanuman"
 - Projects: hanuman-0001 = workload/dev, hanuman-0002 = bootstrap
 - Region: us-east4. Groups: gcp-admins, gcp-billing, gcp-developers
 - Work from Cloud Shell as admin identity; `source scripts/env.sh` each session

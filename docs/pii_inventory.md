@@ -88,7 +88,7 @@ Source: bigquery-public-data.thelook_ecommerce (synthetic data, treated as real 
 |---|---|---|
 | gcp-admins | Dataset ACL OWNER | Break-glass, loads |
 | projectOwners (special group) | Dataset ACL OWNER | Project owners (admins) |
-| DLP service agent `service-236142939294@dlp-api.iam.gserviceaccount.com` | Project role `roles/dlp.serviceAgent` | PII scanning |
+| DLP service agent `service-<PROJECT_NUMBER>@dlp-api.iam.gserviceaccount.com` | Project role `roles/dlp.serviceAgent` | PII scanning |
 | sa-tf-ci | Project-level BigQuery admin role | Infra management (dataset metadata) |
 
 Not approved: gcp-developers (verified **denied** via Policy Troubleshooter), sa-analyst-agent (verified **denied**).
