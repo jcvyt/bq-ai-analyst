@@ -19,3 +19,8 @@ crash.log
 .venv/
 .venv/
 docs/evidence/*.json
+
+# Private working notes: keep outside the repo; belt-and-braces ignore
+private/
+docs/*handoff*.md
+docs/evidence/
