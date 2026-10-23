@@ -1,0 +1,8 @@
+terms:
+  last_week: "The 7 complete days before as_of_date: event_date >= as_of_date - 7 AND event_date < as_of_date."
+  brand: "Known only for department page views (event_type = 'department'). NULL for all other event types."
+  category: "Known only for department page views. NULL for all other event types."
+  product_id: "Known only for product page views."
+  country_values: "Brazil is stored as 'Brasil'."
+
+    country_values: "Brazil is stored as 'Brasil'. Spain appears as both 'Spain' and 'España'; combine them when asked about Spain."
