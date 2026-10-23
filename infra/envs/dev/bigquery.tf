@@ -11,6 +11,24 @@ locals {
     { role = "OWNER", special_group = "projectOwners", group_by_email = null },
     { role = "OWNER", special_group = null, group_by_email = var.admins_group },
   ]
+
+  # NEW: Moved OUTSIDE the datasets map
+  ops_audit_access = [
+    # Keep at least one owner. 'projectOwners' is the safest generic choice.
+    {
+      role           = "OWNER",
+      special_group  = "projectOwners",
+      group_by_email = null,
+      user_by_email  = null
+    },
+    # The sink writer you already added.
+    {
+      role           = "WRITER",
+      special_group  = null,
+      group_by_email = null,
+      user_by_email  = trimprefix(google_logging_project_sink.bq_audit.writer_identity, "serviceAccount:")
+    }
+  ]
 }
 
 resource "google_bigquery_dataset" "ds" {
@@ -21,19 +39,34 @@ resource "google_bigquery_dataset" "ds" {
   max_time_travel_hours      = "48"
   delete_contents_on_destroy = false
 
+  # NEW: 90-day partition expiry, ops_audit only (sink's tables are partitioned)
+  default_partition_expiration_ms = each.key == "ops_audit" ? 90 * 24 * 60 * 60 * 1000 : null
+
   labels = {
     layer      = replace(each.key, "_", "-")
     data-class = each.value.data_class
   }
 
   depends_on = [google_project_service.svc]
+
+  # existing: raw_thelook owners (unchanged)
   dynamic "access" {
-    # Same element type in both branches -> no conditional type errors
     for_each = [for a in local.raw_access : a if each.key == "raw_thelook"]
     content {
       role           = access.value.role
       special_group  = access.value.special_group
       group_by_email = access.value.group_by_email
+    }
+  }
+
+  # NEW block for ops_audit (owners + sink writer)
+  dynamic "access" {
+    for_each = each.key == "ops_audit" ? local.ops_audit_access : []
+    content {
+      role           = access.value.role
+      special_group  = access.value.special_group
+      group_by_email = access.value.group_by_email
+      user_by_email  = access.value.user_by_email
     }
   }
 }
