@@ -2,7 +2,7 @@
 
 > **Audience:** a senior GCP data engineer stepping into an architect role.
 > **Goal:** understand *why* each Day 2–3 decision exists, explain it in a design review, rebuild it on a new org, and recognize when a different design is the right call.
-> **Repo:** `bq-ai-analyst` · **Org:** `361767570892` · **Folder:** `Hanuman` · **Region:** `us-east4`
+> **Repo:** `bq-ai-analyst` · **Org:** `<ORG_ID>` · **Folder:** `Hanuman` · **Region:** `us-east4`
 
 ---
 
@@ -70,7 +70,7 @@ flowchart TB
     GD["group: gcp-developers"]
   end
 
-  subgraph ORG["Organization 361767570892"]
+  subgraph ORG["Organization <ORG_ID>"]
     OP["Org policies (as code)<br/>key creation blocked · PAP · domain-restricted sharing ..."]
     subgraph FOLDER["Folder: Hanuman<br/>policy: gcp.resourceLocations = in:us-locations"]
       subgraph BOOT["Bootstrap project hanuman-0002"]
@@ -219,7 +219,7 @@ Every `plan` does three things: **refresh** (read real resources), **diff** (com
 
 **Pitfalls:** "temporary" grants of org roles to the CI SA that never get removed; admins applying workload stacks with their own credentials (bypasses the audit trail of the CI identity).
 
-**How to verify:** `gcloud organizations get-iam-policy 361767570892 | grep sa-tf-ci` returns nothing.
+**How to verify:** `gcloud organizations get-iam-policy <ORG_ID> | grep sa-tf-ci` returns nothing.
 
 ---
 
@@ -472,7 +472,7 @@ This separates *seeing and governing cost* from *changing who pays*, the FinOps 
 | **Scale** | Repeat clicks per folder or org | Same module for every folder or org |
 | **Recovery** | Reconstruct from memory | Re-apply |
 
-**How it works mechanically:** `google_org_policy_policy` resources use the Org Policy v2 API. The policy's `name` is deterministic: `<parent>/policies/<constraint>` (e.g., `organizations/361767570892/policies/storage.publicAccessPrevention`). Boolean constraints use `rules { enforce = "TRUE" }`; list constraints use `rules { values { allowed_values = [...] } }`.
+**How it works mechanically:** `google_org_policy_policy` resources use the Org Policy v2 API. The policy's `name` is deterministic: `<parent>/policies/<constraint>` (e.g., `organizations/<ORG_ID>/policies/storage.publicAccessPrevention`). Boolean constraints use `rules { enforce = "TRUE" }`; list constraints use `rules { values { allowed_values = [...] } }`.
 
 **Alternatives:**
 
@@ -487,7 +487,7 @@ This separates *seeing and governing cost* from *changing who pays*, the FinOps 
 
 **Pitfalls:** managing the same policy in two places (console *and* Terraform) so they fight; applying org-level policies without checking effects on existing workloads (use **dry-run** specs first in production orgs).
 
-**How to verify:** `gcloud org-policies list --organization=361767570892` matches the Terraform resources, and `terraform plan` shows `No changes`.
+**How to verify:** `gcloud org-policies list --organization=<ORG_ID>` matches the Terraform resources, and `terraform plan` shows `No changes`.
 
 ---
 
