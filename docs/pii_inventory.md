@@ -128,4 +128,6 @@ Not approved: gcp-developers (verified **denied** via Policy Troubleshooter), sa
 | DLP service agent | dlp.serviceAgent | Project IAM | DLP inspection jobs |
 | sa-tf-ci (bootstrap project) | bigquery.admin | Project IAM | **Accepted risk**: deployer has data read. Phase 2: custom role without tables.getData/export; re-verify with this analysis |
 
+ops_audit holds protopayload_auditlog query text; admin queries against raw_thelook can carry PII literals in those strings. Treat as sensitive. Developers are excluded via devs_reader (which covers only curated, semantic, ops_eval).
+
 Verified absent: gcp-developers, sa-analyst-agent.
