@@ -31,17 +31,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: google-github-actions/auth@v3
-      - name: Mask identifiers
-        run: |
-          PN="$(gcloud projects describe "${{ vars.TF_VAR_PROJECT_ID }}" --format='value(projectNumber)')"
-          echo "::add-mask::$PN"
-          DOMAIN="${TF_VAR_ADMINS_GROUP#*@}"
-          echo "::add-mask::$DOMAIN"
-        env:
-          TF_VAR_ADMINS_GROUP: ${{ secrets.TF_VAR_ADMINS_GROUP }}
         with:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_TF_SA }}
+      - name: Mask identifiers
+        env:
+          TF_VAR_ADMINS_GROUP: ${{ secrets.TF_VAR_ADMINS_GROUP }}
+        run: |
+          PN="$(gcloud projects describe "${{ vars.TF_VAR_PROJECT_ID }}" --format='value(projectNumber)')"
+          test -n "$PN" || { echo "project number lookup failed"; exit 1; }
+          echo "::add-mask::$PN"
+          DOMAIN="${TF_VAR_ADMINS_GROUP#*@}"
+          echo "::add-mask::$DOMAIN"
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ vars.TF_VERSION }}
