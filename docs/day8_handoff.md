@@ -48,14 +48,36 @@
 | events rows / anonymous share | 2,416,143 / 46.6% |
 | T9 fine-grain visible events | 518 |
 
-## Day 8 (next)
-- [ ] Audit log sink (BigQuery data_access) → ops_audit (partitioned), via Terraform
-- [ ] Cost view over region-us-east4 INFORMATION_SCHEMA.JOBS_BY_PROJECT (bytes, slot-ms, cost by principal/day)
-- [ ] 20 golden questions in ops_eval (include: threshold clause required, suppression-awareness on fine grain, denied curated/raw, state vs country)
-- [ ] ADR: SQL deploy mechanism (scripted DDL in CI vs Dataform). Today sql/ is run manually as admin
+### Day 8 — eval golden set + observability
+- Golden set v1 frozen and loaded: ops_eval.golden_questions, 20 items, anchor_date 2026-10-16, frozen AS sa-analyst-agent
+  - Behaviors: ANSWER 9 / ANSWER_WITH_CAVEAT 4 / CLARIFY 1 / OUT_OF_SCOPE 3 / REFUSE 3
+  - G07 = 1,731 groups (matches T3); G08 (Okinawa, sub-k) + G15 fully suppressed = 0 rows
+  - Empty results share fp e3b0c442… → 0-row items graded on behavior + must_mention + forbidden_patterns, never fingerprint
+  - v1 immutable after first scored run; changes = v2
+- Freeze script guards: literal questions, no BETWEEN, no CURRENT_*, no TODO/placeholders, objects ⊂ allowed_objects, threshold clause required, non-empty unless true_count_is_below_k, snapshot counts asserted
+- Conventions: "last week" = [as_of - 7, as_of) half-open; as_of_date injected by harness (never system clock); glossary at sql/semantic/glossary.yaml
+- Data quality: DQ-001 future-dated events after load (10-17..10-19); DQ-002 category/brand only on department events, product_id only on product; DQ-003 'Spain' vs 'España', Brazil = 'Brasil'
+- Audit sink bq-audit-to-ops-audit (data_access + activity, partitioned, 90d) codified in main (#16; was applied before merge)
+- Cost view ops_audit.v_query_cost_daily deployed (list price, excludes SCRIPT parents, labels app/component)
+- tf-plan.yml: paths filter removed so required check `plan` reports on every PR
+- Verification results: [paste: audit query summary + cost view rows]
+
+### Incident — identifiers in public repo (2026-10-23)
+- Private notes (day7.md, handoff) committed to main since Day 7 (#11), plus hardcoded IDs in bootstrap .tf, tfvars.example, env.sh
+- Secret scan: no credentials (2 hits = the word "password" in prose)
+- Docs redacted (#17 + redact-notes-2); code parameterization = Day 9 PR-2
+- History: Option A, accepted risk, dated 2026-10-23; revisit at Phase 1 end
+- backup-local-main branch kept (old local commits) until history decision is final
+
+- Verification: audit sink logs agent OK (121), PERMISSION_DENIED (3), NOT_FOUND (1), INVALID_ARGUMENT (4); cost view shows eval-freeze 41 jobs, window-check 3 jobs under sa-analyst-agent
+
+
+
+## Day 9 (next)
+- [ ] PR-2 parameterize identifiers: env.sh (runtime lookups, no echo), tfvars.example placeholders, bootstrap .tf → vars; delete completed import blocks; bootstrap plan = No changes; whole-repo git grep clean
+- [ ] ADR-0001: fill stub (options, decision, Dataform spike: semantic.web_events, T9 = 518)
+- [ ] PR-E cleanup: duplicate repo vars, Dependabot semver-major ignore, noreply email, old run logs, bootstrap email validation, pre-push hook checks commit, pre-commit identifier hook
 - [ ] Checkpoint #1
-- [ ] Cleanup PR: duplicate repo variables (WIF_PROVIDER vs GCP_WIF_PROVIDER, TF_CI_SA vs GCP_TF_SA, PROJECT_ID, TF_STATE_BUCKET — grep workflows first); Dependabot ignore semver-major hashicorp/*; git user.email → GitHub noreply; delete old run logs that printed group emails; mirror group-email validation in bootstrap
-- [ ] Carry-over if not done: scripts/dlp_status.sh + dlp_inspect.py start/wait split
 
 ## Deferred (Phase 2)
 - WIF condition on assertion.repository_id; IAM Conditions on sa-tf-ci projectIamAdmin
@@ -91,6 +113,18 @@
 - One workflow file per pipeline, .yml only (path filters miss .yaml)
 - Solo repo: self-approval impossible → 0 approvals + environment reviewer as the human gate
 - Longer map keys re-align maps: run terraform fmt; pre-push hook enforces it
+- Never apply from an unmerged working copy; state ahead of main = next PR deletes it (destroy gate caught it)
+- Path filters + required checks = check stuck "Expected" forever
+- Stage files by name; never `git add .`; review `git diff --cached --stat`
+- Private notes live outside the repo (~/private-notes); .gitignore is backup only
+- Pre-push hook checks the working tree, not the pushed commit (fix in PR-E)
+- Paste only at an empty prompt; backticks in double quotes = command substitution
+- git grep --cached / origin/main checks what's committed, not your working tree
+- Reference SQL must be deterministic: tie-breakers on ORDER BY … LIMIT, pinned anchors
 
 ## Working agreement
 Go day by day; next day starts only after results are verified.
+
+
+
+
