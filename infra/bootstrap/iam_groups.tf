@@ -3,6 +3,7 @@ locals {
   billing    = "group:gcp-billing@${var.domain}"
   developers = "group:gcp-developers@${var.domain}"
   folder     = "folders/${var.folder_id}"
+  org_parent = "organizations/${var.org_id}"
 }
 
 resource "google_organization_iam_member" "admins_orgpolicy" {
@@ -34,7 +35,7 @@ resource "google_folder_iam_member" "developers" {
 
 # infra/bootstrap/iam_org.tf
 resource "google_organization_iam_member" "admins_asset_viewer" {
-  org_id = var.org_id # 361767570892
+  org_id = var.org_id
   role   = "roles/cloudasset.viewer"
   member = local.admins
 }
