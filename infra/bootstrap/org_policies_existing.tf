@@ -1,11 +1,11 @@
 # __generated__ by Terraform
 # Please review these resources and move them into your main configuration files.
 
-# __generated__ by Terraform from "organizations/361767570892/policies/iam.managed.disableServiceAccountKeyCreation"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/iam.managed.disableServiceAccountKeyCreation"
 resource "google_org_policy_policy" "managed_disable_sa_key_creation" {
   deletion_policy = "DELETE"
   name            = "iam.managed.disableServiceAccountKeyCreation"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false
@@ -18,11 +18,11 @@ resource "google_org_policy_policy" "managed_disable_sa_key_creation" {
   }
 }
 
-# __generated__ by Terraform from "organizations/361767570892/policies/iam.automaticIamGrantsForDefaultServiceAccounts"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/iam.automaticIamGrantsForDefaultServiceAccounts"
 resource "google_org_policy_policy" "no_auto_iam_grants_default_sa" {
   deletion_policy = "DELETE"
   name            = "iam.automaticIamGrantsForDefaultServiceAccounts"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false
@@ -35,11 +35,11 @@ resource "google_org_policy_policy" "no_auto_iam_grants_default_sa" {
   }
 }
 
-# __generated__ by Terraform from "organizations/361767570892/policies/essentialcontacts.managed.allowedContactDomains"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/essentialcontacts.managed.allowedContactDomains"
 resource "google_org_policy_policy" "managed_allowed_contact_domains" {
   deletion_policy = "DELETE"
   name            = "essentialcontacts.managed.allowedContactDomains"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false
@@ -48,17 +48,18 @@ resource "google_org_policy_policy" "managed_allowed_contact_domains" {
       deny_all  = null
       enforce   = "TRUE"
       parameters = jsonencode({
-        allowedDomains = ["@sanjayglobalconnect.com"]
+        allowedDomains = ["@${var.domain}"]
+
       })
     }
   }
 }
 
-# __generated__ by Terraform from "organizations/361767570892/policies/compute.managed.restrictProtocolForwardingCreationForTypes"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/compute.managed.restrictProtocolForwardingCreationForTypes"
 resource "google_org_policy_policy" "managed_restrict_protocol_forwarding" {
   deletion_policy = "DELETE"
   name            = "compute.managed.restrictProtocolForwardingCreationForTypes"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false
@@ -73,11 +74,11 @@ resource "google_org_policy_policy" "managed_restrict_protocol_forwarding" {
   }
 }
 
-# __generated__ by Terraform from "organizations/361767570892/policies/storage.uniformBucketLevelAccess"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/storage.uniformBucketLevelAccess"
 resource "google_org_policy_policy" "uniform_bucket_level_access" {
   deletion_policy = "DELETE"
   name            = "storage.uniformBucketLevelAccess"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false
@@ -90,11 +91,11 @@ resource "google_org_policy_policy" "uniform_bucket_level_access" {
   }
 }
 
-# __generated__ by Terraform from "organizations/361767570892/policies/iam.allowedPolicyMemberDomains"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/iam.allowedPolicyMemberDomains"
 resource "google_org_policy_policy" "allowed_policy_member_domains" {
   deletion_policy = "DELETE"
   name            = "iam.allowedPolicyMemberDomains"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false
@@ -104,18 +105,18 @@ resource "google_org_policy_policy" "allowed_policy_member_domains" {
       enforce    = null
       parameters = null
       values {
-        allowed_values = ["C03uqeclg"]
+        allowed_values = [var.customer_id]
         denied_values  = []
       }
     }
   }
 }
 
-# __generated__ by Terraform from "organizations/361767570892/policies/iam.disableServiceAccountKeyUpload"
+# __generated__ by Terraform from "organizations/<ORG_ID>/policies/iam.disableServiceAccountKeyUpload"
 resource "google_org_policy_policy" "disable_sa_key_upload" {
   deletion_policy = "DELETE"
   name            = "iam.disableServiceAccountKeyUpload"
-  parent          = "organizations/361767570892"
+  parent          = local.org_parent
   spec {
     inherit_from_parent = false
     reset               = false

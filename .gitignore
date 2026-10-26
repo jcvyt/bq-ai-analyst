@@ -24,3 +24,5 @@ docs/evidence/*.json
 private/
 docs/*handoff*.md
 docs/evidence/
+docs/*handoff*.md
+docs/process.md
