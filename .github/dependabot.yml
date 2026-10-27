@@ -11,3 +11,14 @@ updates:
     directory: "/infra/bootstrap"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "hashicorp/google"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "terraform"
+    directory: "/infra/envs/dev"          # <-- the second directory
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "hashicorp/google"
+        update-types: ["version-update:semver-major"]
