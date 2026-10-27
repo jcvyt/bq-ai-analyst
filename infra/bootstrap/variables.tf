@@ -1,18 +1,18 @@
-variable "org_id" { 
+variable "org_id" {
   type = string
   validation {
     condition     = can(regex("^[0-9]+$", var.org_id))
     error_message = "org_id must be numeric."
   }
 }
-variable "folder_id"  { 
+variable "folder_id" {
   type = string
   validation {
     condition     = can(regex("^[0-9]+$", var.folder_id))
     error_message = "org_id must be numeric."
   }
 }
-variable "billing_account"{ 
+variable "billing_account" {
   type = string
   validation {
     condition     = can(regex("^[0-9A-F]{6}-[0-9A-F]{6}-[0-9A-F]{6}$", var.billing_account))
@@ -21,7 +21,7 @@ variable "billing_account"{
 }
 variable "bootstrap_project" { type = string }
 variable "workload_project" { type = string }
-variable "domain" { 
+variable "domain" {
   type = string
   validation {
     condition     = can(regex("^[a-z0-9-]+(\\.[a-z0-9-]+)+$", var.domain))
