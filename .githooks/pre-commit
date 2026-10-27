@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+pat="$HOME/private-notes/identifiers.txt"
+[[ -s "$pat" ]] || { echo "identifiers.txt missing — refusing commit"; exit 1; }
+if git grep --cached -l -F -f "$pat"; then echo "Identifier staged — blocked"; exit 1; fi
