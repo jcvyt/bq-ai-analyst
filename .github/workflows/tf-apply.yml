@@ -7,6 +7,8 @@ on:
       - "infra/modules/**"
       - ".github/workflows/tf-*.yml"
       - "scripts/destroy_gate.sh"
+      - "tests/access/**"
+      - "requirements-dev.txt"
 
 permissions:
   contents: read

@@ -12,7 +12,7 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      - dependency-name: "hashicorp/google"
+      - dependency-name: "hashicorp/google*"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "terraform"
@@ -20,5 +20,5 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
-      - dependency-name: "hashicorp/google"
+      - dependency-name: "hashicorp/google*"
         update-types: ["version-update:semver-major"]
