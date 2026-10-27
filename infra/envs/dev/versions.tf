@@ -8,7 +8,7 @@ terraform {
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 7.0" # <-- same constraint as google
+      version = "~> 8.8" # <-- same constraint as google
     }
   }
   backend "gcs" {
