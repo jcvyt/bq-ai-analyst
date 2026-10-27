@@ -56,9 +56,9 @@ def main() -> int:
             detail = f"{type(e).__name__}: {e.message[:90]}"
         failed += not ok
         print(f"{'PASS' if ok else 'FAIL'}  {name}  ({detail})", flush=True)
+        total = len(CASES)
+        print(f"SUMMARY {total - failed}/{total} passed", flush=True)
     return 1 if failed else 0
-    print(f"SUMMARY {passed}/{total} passed")
-    sys.exit(0 if passed == total else 1)
 
 if __name__ == "__main__":
     sys.exit(main())
