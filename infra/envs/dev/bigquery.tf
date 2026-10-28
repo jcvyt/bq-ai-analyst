@@ -42,11 +42,13 @@ resource "google_bigquery_dataset" "ds" {
   # NEW: 90-day partition expiry, ops_audit only (sink's tables are partitioned)
   default_partition_expiration_ms = each.key == "ops_audit" ? 90 * 24 * 60 * 60 * 1000 : null
 
-  labels = {
-    layer      = replace(each.key, "_", "-")
-    data-class = each.value.data_class
-  }
-
+  labels = merge(
+    {
+      layer      = replace(each.key, "_", "-")
+      data-class = each.value.data_class
+    },
+    each.key == "ops_eval" ? { phase = "2" } : {},
+  )
   depends_on = [google_project_service.svc]
 
   # existing: raw_thelook owners (unchanged)
