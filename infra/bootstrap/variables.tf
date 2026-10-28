@@ -9,7 +9,7 @@ variable "folder_id" {
   type = string
   validation {
     condition     = can(regex("^[0-9]+$", var.folder_id))
-    error_message = "org_id must be numeric."
+    error_message = "folder_id must be numeric."
   }
 }
 variable "billing_account" {
