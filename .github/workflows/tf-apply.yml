@@ -39,12 +39,15 @@ jobs:
       - name: Mask identifiers
         env:
           TF_VAR_ADMINS_GROUP: ${{ secrets.TF_VAR_ADMINS_GROUP }}
+          MASK_SELFTEST: ${{ vars.MASK_SELFTEST }}
         run: |
+          set -euo pipefail
           PN="$(gcloud projects describe "${{ vars.TF_VAR_PROJECT_ID }}" --format='value(projectNumber)')"
-          test -n "$PN" || { echo "project number lookup failed"; exit 1; }
-          echo "::add-mask::$PN"
           DOMAIN="${TF_VAR_ADMINS_GROUP#*@}"
-          echo "::add-mask::$DOMAIN"
+          [[ -n "${PN:-}" && -n "${DOMAIN:-}" ]] || { echo "mask: empty lookup"; exit 1; }
+          echo "::add-mask::${PN}"
+          echo "::add-mask::${DOMAIN}"
+          if [[ "${MASK_SELFTEST:-}" == "true" ]]; then echo "mask-selftest ${PN} ${DOMAIN}"; fi
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ vars.TF_VERSION }}
@@ -84,6 +87,18 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_TF_SA }}
+      - name: Mask identifiers
+        env:
+          TF_VAR_ADMINS_GROUP: ${{ secrets.TF_VAR_ADMINS_GROUP }}
+          MASK_SELFTEST: ${{ vars.MASK_SELFTEST }}
+        run: |
+          set -euo pipefail
+          PN="$(gcloud projects describe "${{ vars.TF_VAR_PROJECT_ID }}" --format='value(projectNumber)')"
+          DOMAIN="${TF_VAR_ADMINS_GROUP#*@}"
+          [[ -n "${PN:-}" && -n "${DOMAIN:-}" ]] || { echo "mask: empty lookup"; exit 1; }
+          echo "::add-mask::${PN}"
+          echo "::add-mask::${DOMAIN}"
+          if [[ "${MASK_SELFTEST:-}" == "true" ]]; then echo "mask-selftest ${PN} ${DOMAIN}"; fi
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ vars.TF_VERSION }}
