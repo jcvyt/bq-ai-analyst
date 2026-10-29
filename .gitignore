@@ -26,3 +26,5 @@ docs/*handoff*.md
 docs/evidence/
 docs/*handoff*.md
 docs/process.md
+__pycache__/
+*.py[cod]
