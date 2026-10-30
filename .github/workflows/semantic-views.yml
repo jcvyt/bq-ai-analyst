@@ -1,0 +1,88 @@
+name: semantic-views
+
+on:
+  schedule:
+    - cron: "45 6 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "check = detect only; reconcile = redeploy drifted views (reviewer-gated)"
+        type: choice
+        options: [check, reconcile]
+        default: check
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: semantic-views
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: github.event_name == 'schedule' || inputs.mode == 'check'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_TF_SA }}
+      - name: Mask identifiers
+        env:
+          TF_VAR_ADMINS_GROUP: ${{ secrets.TF_VAR_ADMINS_GROUP }}
+          MASK_SELFTEST: ${{ vars.MASK_SELFTEST }}
+        run: |
+          set -euo pipefail
+          PN="$(gcloud projects describe "${{ vars.TF_VAR_PROJECT_ID }}" --format='value(projectNumber)')"
+          DOMAIN="${TF_VAR_ADMINS_GROUP#*@}"
+          [[ -n "${PN:-}" && -n "${DOMAIN:-}" ]] || { echo "mask: empty lookup"; exit 1; }
+          echo "::add-mask::${PN}"
+          echo "::add-mask::${DOMAIN}"
+          if [[ "${MASK_SELFTEST:-}" == "true" ]]; then echo "mask-selftest ${PN} ${DOMAIN}"; fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python dependencies
+        run: pip install --quiet -r requirements-dev.txt
+      - name: Drift check (ADR-0002, detect only)
+        env:
+          TF_VAR_PROJECT_ID: ${{ vars.TF_VAR_PROJECT_ID }}
+        run: python scripts/semantic_views.py check
+
+  reconcile:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'reconcile'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: dev
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_TF_SA }}
+      - name: Mask identifiers
+        env:
+          TF_VAR_ADMINS_GROUP: ${{ secrets.TF_VAR_ADMINS_GROUP }}
+          MASK_SELFTEST: ${{ vars.MASK_SELFTEST }}
+        run: |
+          set -euo pipefail
+          PN="$(gcloud projects describe "${{ vars.TF_VAR_PROJECT_ID }}" --format='value(projectNumber)')"
+          DOMAIN="${TF_VAR_ADMINS_GROUP#*@}"
+          [[ -n "${PN:-}" && -n "${DOMAIN:-}" ]] || { echo "mask: empty lookup"; exit 1; }
+          echo "::add-mask::${PN}"
+          echo "::add-mask::${DOMAIN}"
+          if [[ "${MASK_SELFTEST:-}" == "true" ]]; then echo "mask-selftest ${PN} ${DOMAIN}"; fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python dependencies
+        run: pip install --quiet -r requirements-dev.txt
+      - name: Reconcile semantic views (ADR-0002)
+        env:
+          TF_VAR_PROJECT_ID: ${{ vars.TF_VAR_PROJECT_ID }}
+        run: python scripts/semantic_views.py reconcile
+      - name: Access regression (as sa-analyst-agent)
+        run: python tests/access/test_semantic_access.py
