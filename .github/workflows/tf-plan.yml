@@ -64,3 +64,14 @@ jobs:
             terraform show -no-color tfplan | tail -n 80
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python dependencies
+        working-directory: ${{ github.workspace }}
+        run: pip install --quiet -r requirements-dev.txt
+      - name: Semantic views — unit tests + DDL dry-run (ADR-0002)
+        working-directory: ${{ github.workspace }}
+        run: |
+          python tests/unit/test_semantic_views.py
+          python scripts/semantic_views.py dry-run
