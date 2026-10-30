@@ -9,6 +9,8 @@ on:
       - "scripts/destroy_gate.sh"
       - "tests/access/**"
       - "requirements-dev.txt"
+      - "sql/semantic/**"
+      - "scripts/semantic_views.py"
 
 permissions:
   contents: read
@@ -115,7 +117,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install Python dependencies
+        run: pip install --quiet -r requirements-dev.txt
+      - name: Reconcile semantic views (ADR-0002)
+        env:
+          TF_VAR_PROJECT_ID: ${{ vars.TF_VAR_PROJECT_ID }}
+        run: python scripts/semantic_views.py reconcile
       - name: Access regression (as sa-analyst-agent)
-        run: |
-          pip install --quiet -r requirements-dev.txt
-          python tests/access/test_semantic_access.py
+        run: python tests/access/test_semantic_access.py
+        
