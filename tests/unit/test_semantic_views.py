@@ -7,8 +7,6 @@ from types import SimpleNamespace as NS
 import re
 
 
-REPO = {"users_demographics", "web_events"}
-OK2 = [("users_demographics", "VIEW"), ("web_events", "VIEW")]
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 _spec = importlib.util.spec_from_file_location("sv", ROOT / "scripts" / "semantic_views.py")
