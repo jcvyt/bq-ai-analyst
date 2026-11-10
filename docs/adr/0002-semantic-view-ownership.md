@@ -35,3 +35,15 @@ Option 3. Semantic views are deployed by CI running sql/semantic/*.sql (CREATE O
 - Privacy policy is reviewed as code in PRs; T1–T9 run after every deploy
 - Curated tables stay DDL-from-CI for Phase 2; no Dataform until a revisit trigger fires
 - Revisit when: provider schema gains privacy_policy (re-run the check on each provider major upgrade); >5 views; curated needs DAG orchestration
+
+## Implementation notes (2026-11-10)
+- Drift comparison is the EXACT view query text after whitespace-run normalization, not a hash. A substring match is drift.
+- Curated tables remain hand-run DDL (sql/curated/*.sql). Only semantic views are CI-deployed.
+- Unmanaged objects (F14, #42912541630): check compares the FULL live inventory (tables, views, MVs, routines) of the dataset the repo
+  files target against the repo files. The dataset is derived from the fully qualified names in sql/semantic/*.sql; it must be
+  exactly one, named `semantic`. A live-only object is UNMANAGED → check exits 2. Reconcile deploys repo-defined views only,
+  never drops, and exits 1 while unmanaged objects remain. Removal is a logged human break-glass. A source-level unit test fails
+  any change that adds a drop/delete path.
+- Detection outside merges: semantic-views.yml, daily detect-only + reviewer-gated dispatch reconcile (#34).
+- Proven 2026-11-10 with a probe view carrying the same k=10 policy: CI check red, CI reconcile red with DEPLOYED 0 and the
+  probe intact; INFORMATION_SCHEMA.JOBS shows 0 CI DDL; probe removed by admin.
