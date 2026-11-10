@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """Offline tests for scripts/semantic_views.py drift logic (no GCP calls)."""
 import importlib.util
-import pathlib
+import pathlib 
 import sys
+from types import SimpleNamespace as NS
+import re
+
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 _spec = importlib.util.spec_from_file_location("sv", ROOT / "scripts" / "semantic_views.py")
 sv = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(sv)
 
+find_unmanaged = sv.find_unmanaged
+run_unmanaged = sv.run_unmanaged
+spec_name = sv.spec_name
+target_dataset = sv.target_dataset
 
 def pol(threshold="10", units=("user_id",)):
     return {"privacyPolicy": {"aggregationThresholdPolicy": {"threshold": threshold, "privacyUnitColumns": list(units)}}}
@@ -38,7 +46,50 @@ cases += [
     ("repo thresholds", sorted({s["threshold"] for s in specs}), [10]),
     ("repo units", sorted(s["unit"] for s in specs), ["privacy_unit", "user_id"]),
 ]
+import contextlib, io
 
+def _fake_client(extra):
+    seen = []
+    def lt(ds):
+        seen.append(ds)
+        return [NS(table_id=n, table_type=k) for n, k in OK2 + extra]
+    return NS(project=None, list_tables=lt, list_routines=lambda ds: []), seen
+
+def _exits(fn, *a, **kw):
+    try:
+        fn(*a, **kw)
+    except SystemExit:
+        return True
+    return False
+
+REPO = {"users_demographics", "web_events"}
+OK2 = [("users_demographics", "VIEW"), ("web_events", "VIEW")]
+_SPECS = [{"file": f"{n}.sql", "table_id": f"`p.semantic.{n}`"} for n in sorted(REPO)]
+
+def case_run_unmanaged():
+    client, seen = _fake_client([("zz", "VIEW")])
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        um = run_unmanaged(client, _SPECS)
+    out = buf.getvalue()
+    return um == [("zz", "VIEW")] and seen == ["p.semantic"] and "zz UNMANAGED" in out and "SUMMARY unmanaged=1" in out
+NEW_CASES = [
+    ("unmanaged view flagged",   lambda: find_unmanaged(OK2 + [("zz_probe", "VIEW")], REPO) == [("zz_probe", "VIEW")]),
+    ("unmanaged table flagged",  lambda: find_unmanaged(OK2 + [("copy", "TABLE")], REPO) == [("copy", "TABLE")]),
+    ("unmanaged routine flagged",lambda: len(find_unmanaged(OK2 + [("tvf", "ROUTINE:TABLE_VALUED_FUNCTION")], REPO)) == 1),
+    ("repo-only set ok",         lambda: find_unmanaged(OK2, REPO) == []),
+    ("spec_name forms",          lambda: all(spec_name({"table_id": t}) == "web_events" for t in
+                                   ["`p.semantic.web_events`", "p.semantic.web_events", "semantic.web_events", "web_events"])),
+    ("run_unmanaged repo-derived dataset", case_run_unmanaged),
+    ("target_dataset qualified", lambda: target_dataset([{"file": "a.sql", "table_id": "p.semantic.a"},
+                                                         {"file": "b.sql", "table_id": "`p.semantic.b`"}]) == "p.semantic"),
+    ("target_dataset mixed fails",       lambda: _exits(target_dataset, [{"file": "a.sql", "table_id": "p.semantic.a"},
+                                                                         {"file": "b.sql", "table_id": "p.curated.b"}])),
+    ("target_dataset unresolvable fails",lambda: _exits(target_dataset, [{"file": "a.sql", "table_id": "semantic.a"}], None)),
+    ("no delete path in source", lambda: not re.search(r"\bDROP\s+(VIEW|TABLE|FUNCTION)|delete_(table|routine|dataset)",
+                                   (ROOT / "scripts" / "semantic_views.py").read_text(), re.I)),
+]
+cases += [(n, bool(fn()), True) for n, fn in NEW_CASES]
 failed = [n for n, got, exp in cases if got != exp]
 for n, got, exp in cases:
     print(f"{'PASS' if got == exp else 'FAIL'} {n}")
