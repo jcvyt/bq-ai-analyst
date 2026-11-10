@@ -1134,5 +1134,5 @@ Answers are in section 12.
 7. **Whether `CREATE OR REPLACE VIEW` keeps view-level IAM.** It doesn't matter here (access is dataset-level, and T1–T9 passed after replacement), but it matters if you ever add per-view IAM.
 8. **`INFORMATION_SCHEMA.JOBS` retention** (about 180 days) is from memory of the docs; confirm in "JOBS view".
 ## Post-review status (2026-11-10)
-- F14 closed in #N (unmanaged objects = drift, reconcile never drops; probe-proven).
+- F14 closed in #35 002dd2a (unmanaged objects = drift, reconcile never drops; probe-proven).
 - F16 closed by this PR (ADR-0002 implementation notes).
